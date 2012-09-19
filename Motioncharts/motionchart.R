@@ -43,4 +43,4 @@ mchart <- gvisMotionChart(df, idvar="sampleID", timevar="time")
 plot(mchart)
 
 # Save as html (needs javascript to open!) 
-print(mchart, file="~/roihu/MotionChart.html")
+print(mchart, file="MotionChart.html")
