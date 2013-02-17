@@ -9,10 +9,12 @@
 # Parameters
 level <- "species"
 
-# Add NMF and 006, frpa with affinities etc.
+# Add NMF and 006, frpa with affinities etc., direct RPA etc.
 
+outputdirs <- c()
 for (method in c("sum", "rpa", "frpa", "ave")) {
   source("generate.qiime.files.R")
+  outputdirs[[method]] <- outputdir
 }
 
 # source("compare.hitchip.ngs.R")
