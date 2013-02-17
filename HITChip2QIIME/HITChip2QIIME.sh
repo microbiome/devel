@@ -16,7 +16,7 @@
 # assign_taxonomy.py -i ~/data/HITChip/QIIME/HITChip16S.fasta -m rdp –o hitchip_taxonomic_assignments
 
 # Convert HITChip species matrix into QIIME abundance matrix
-~/bin/R-2.15.2/bin/R CMD BATCH HITChip2QIIME.R
+~/bin/R-2.15.2/bin/R CMD BATCH generatefiles.R
 
 # Check mapping file correctness
 check_id_map.py -m qiime_sample_mapping_file.txt -o mapping_output

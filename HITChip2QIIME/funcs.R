@@ -1,3 +1,29 @@
+get.qiime.matrix <- function (outputdir, file.id) {
+
+  genus.file <- paste(outputdir, "/", file.id, "_L6.txt", sep = "")
+  tab <- read.table(genus.file, header = TRUE, row.names = 1)
+
+  # Extract genus names
+  nams <- unname(sapply(rownames(tab), function (x) {levs <- strsplit(x, ";")[[1]]; ind <- grep("g__", levs); if (length(ind) > 0) {gsub("g__", "", levs[[ind]])} else {NA}}))
+  nams[is.na(nams)] <- ""
+
+  # Remove entries with no genus-level classification
+  keep <- which(!nams == "")
+  tab <- tab[keep, ]
+  nams <- nams[keep]
+
+  # Remove duplicated occurrences of a genus
+  keep <- which(!duplicated(nams))
+  tab <- tab[keep, ]
+  nams <- nams[keep]   
+
+  rownames(tab) <- nams
+
+  tab
+
+}
+
+
 
 #' @param hitchip.matrix HITChip data matrix taxa x samples
 HITChip2QIIME <- function (data.dir, level = "species", method = "rpa", phylogeny.file, hitchip.output.file = "hitchip_data.txt") {
