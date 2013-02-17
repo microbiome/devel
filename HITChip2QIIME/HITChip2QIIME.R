@@ -12,9 +12,13 @@ level <- "species"
 # Add NMF and 006, frpa with affinities etc., direct RPA etc.
 
 outputdirs <- c()
-for (method in c("sum", "rpa", "frpa", "ave")) {
+summarization.methods = c("sum", "ave", "rpa", "frpa", "sum.through.species", "ave.through.species", "rpa.direct", "rpa.with.affinities", "rpa.with.affinities.direct")
+for (method in summarization.methods) {
   source("generate.qiime.files.R")
   outputdirs[[method]] <- outputdir
 }
 
 # source("compare.hitchip.ngs.R")
+
+
+

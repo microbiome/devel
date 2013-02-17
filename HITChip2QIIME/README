@@ -1,0 +1,18 @@
+LL / 17.2.2013
+
+Development scripts to HITChip-QIIME conversions & benchmarking.
+
+The scripts additional (confidential) metadata files. See the script
+comments for details.
+
+* Converting HITChip data in QIIME format
+  - HITChip2QIIME.sh (main script R + QIIME parts)
+  - generatefiles.R (R part; called from the main script)
+
+* Convert various HITChip preprocessing into QIIME format in batch to
+  run automated benchmarkings: HITChip2QIIME.R this calls further
+  scripts, including
+  - generate.qiime.files.R (R + QIIME scripts run from within R)
+  - funcs.R (functions)
+
+
