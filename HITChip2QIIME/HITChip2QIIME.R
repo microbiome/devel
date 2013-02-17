@@ -9,7 +9,9 @@
 # Parameters
 level <- "species"
 
-for (method in c("sum", "rpa", "frpa", "ave", "nmf")) {
+# Add NMF and 006, frpa with affinities etc.
+
+for (method in c("sum", "rpa", "frpa", "ave")) {
   source("generate.qiime.files.R")
 }
 
