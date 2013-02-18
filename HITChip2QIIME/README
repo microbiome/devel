@@ -15,4 +15,5 @@ comments for details.
   - generate.qiime.files.R (R + QIIME scripts run from within R)
   - funcs.R (functions)
 
-
+* HITChip-NGS comparisons run in batch once the QIIME files are
+  generated. For the automated comparisons, use compare.hitchip.ngs.R
