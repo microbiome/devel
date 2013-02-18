@@ -25,7 +25,7 @@ hv <- log10(unlist(hit))
 
 # Ignore zero abundances and plot in log scale
 keep <- rowSums(is.infinite(cbind(nv, hv))) == 0
-plot(nv[keep], hv[keep], main = paste(nam, "corr:", round(cor(nv[keep], hv[keep]), 3))); abline(0,1)
+plot(nv[keep], hv[keep], main = paste(outputdir, "corr:", round(cor(nv[keep], hv[keep]), 3))); abline(0,1)
 
 # Correlation with zeroes excluded and at log10
 nonzero.corr.log10 <- cor(nv[keep], hv[keep])

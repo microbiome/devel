@@ -1,5 +1,11 @@
 # COMPARE TO NGS DATA
 
+summarization.methods = c("sum", "ave", "rpa", "frpa") 
+outputdirs <- c("qiime-species-sum", "qiime-species-ave",
+                "qiime-species-rpa", "qiime-species-frpa",
+  		"qiime-quantiles-species-sum", "qiime-quantiles-species-ave", 
+ 		"qiime-quantiles-species-rpa", "qiime-quantiles-species-frpa")
+
 source("funcs.R")
 
 # Read NGS data for the same samples
@@ -9,28 +15,20 @@ colnames(genus.ngs) <- gsub("\\.", "", gsub(".l3.2", "", gsub(".l3.1", "", colna
 
 # ----------------------------------------------
 
-par(mfrow = c(3, 3))
-stats <- c()
-for (method in setdiff(summarization.methods, "ave")) {
-  
-  # Get Genus-level abundance matrix in QIIME format
-  outputdir <- paste("qiime-species", method, sep = "-")
-  genus.hitchip <- get.qiime.matrix(outputdir, file.id = "abundance_with_taxa") 
-  source("benchmarks.R")		  		
-  stats[[method]] <- nonzero.corr.log10
-
-}
-dev.off()
+source("overall.correlations.R")
 pdf("OverallCorrelations.pdf")
-par(mar = c(1, 10, 1, 1)); barplot(sort(stats), horiz = T, las = 1, main = "NGS-HITChip correlation")
+par(mar = c(3, 14, 1, 1)); barplot(sort(stats), horiz = T, las = 1, main = "NGS-HITChip correlation")
 dev.off()
 
 # --------------------------------------------------
 
-# Problematic due to compositionality effects
-#source("taxa.correlations.R")
+# Check RPA variants and ave?
+source("sample.correlations.R")
 
 # --------------------------------------------------------
 
-# Check RPA variants and ave?
-source("sample.correlations.R")
+# Problematic due to compositionality effects
+#source("taxa.correlations.R")
+
+
+

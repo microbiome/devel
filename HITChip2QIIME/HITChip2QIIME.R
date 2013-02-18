@@ -10,15 +10,32 @@
 level <- "species"
 
 
-# Add(?) frpa.with.affinities, frpa.with.affinities.direct, 006, atlas3268, atlas5000
 outputdirs <- c()
-summarization.methods = c("sum", "ave", "rpa", "frpa", "sum.through.species", "ave.through.species", "rpa.direct", "rpa.with.affinities", "rpa.with.affinities.direct") 
+
+summarization.methods = c("sum", "ave", "rpa", "frpa") 
+
+hitchip.data.dir <- "hitchip.files" # HITChip profiling output dir
 for (method in summarization.methods) {
+  outputdir <- paste("qiime", level, method, sep = "-") # QIIME results
   source("generate.qiime.files.R")
   outputdirs[[method]] <- outputdir
 }
 
+hitchip.data.dir <- "hitchip.files.quantiles" # HITChip profiling output dir
+summarization.methods = c("sum", "ave", "rpa", "frpa") 
+for (method in summarization.methods) {
+  outputdir <- paste("qiime-quantiles", level, method, sep = "-") # QIIME results
+  source("generate.qiime.files.R")
+  outputdirs[[paste(method, "quantiles", sep = "-")]] <- outputdir
+}
 
+#hitchip.data.dir <- "hitchip.files.specificoligos" # HITChip profiling output dir
+#summarization.methods = c("sum", "ave", "rpa", "frpa") 
+#for (method in summarization.methods) {
+#  outputdir <- paste("qiime-specificoligos", level, method, sep = "-") # QIIME results
+#  source("generate.qiime.files.R")
+#  outputdirs[[paste(method, "specificoligos", sep = "")]] <- outputdir
+#}
 
 # source("compare.hitchip.ngs.R")
 
