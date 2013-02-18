@@ -9,21 +9,28 @@ colnames(genus.ngs) <- gsub("\\.", "", gsub(".l3.2", "", gsub(".l3.1", "", colna
 
 # ----------------------------------------------
 
-outputdirs <- c(ave = "qiime-species-ave", sum = "qiime-species-sum", rpa = "qiime-species-rpa")
-
-par(mfrow = c(2, 2))
+par(mfrow = c(3, 3))
 stats <- c()
-for (nam in names(outputdirs)) {
+for (method in setdiff(summarization.methods, "ave")) {
+  
   # Get Genus-level abundance matrix in QIIME format
-  outputdir <- outputdirs[[nam]]
+  outputdir <- paste("qiime-species", method, sep = "-")
   genus.hitchip <- get.qiime.matrix(outputdir, file.id = "abundance_with_taxa") 
   source("benchmarks.R")		  		
-  stats[[nam]] <- nonzero.corr.log10
+  stats[[method]] <- nonzero.corr.log10
+
 }
+dev.off()
+pdf("OverallCorrelations.pdf")
+par(mar = c(1, 10, 1, 1)); barplot(sort(stats), horiz = T, las = 1, main = "NGS-HITChip correlation")
+dev.off()
 
+# --------------------------------------------------
 
+# Problematic due to compositionality effects
+#source("taxa.correlations.R")
 
+# --------------------------------------------------------
 
-
-
-
+# Check RPA variants and ave?
+source("sample.correlations.R")
