@@ -9,7 +9,6 @@
 # Parameters
 level <- "species"
 
-
 outputdirs <- c()
 
 summarization.methods = c("sum", "ave", "rpa", "frpa") 
@@ -17,6 +16,9 @@ summarization.methods = c("sum", "ave", "rpa", "frpa")
 hitchip.data.dir <- "hitchip.files" # HITChip profiling output dir
 for (method in summarization.methods) {
   outputdir <- paste("qiime", level, method, sep = "-") # QIIME results
+  # HITChip in QIIME format output file
+  hitchip.output.file <- paste("hitchip_", level, "_", method, ".txt", sep = "")
+
   source("generate.qiime.files.R")
   outputdirs[[method]] <- outputdir
 }
@@ -25,9 +27,27 @@ hitchip.data.dir <- "hitchip.files.quantiles" # HITChip profiling output dir
 summarization.methods = c("sum", "ave", "rpa", "frpa") 
 for (method in summarization.methods) {
   outputdir <- paste("qiime-quantiles", level, method, sep = "-") # QIIME results
+  # HITChip in QIIME format output file
+  hitchip.output.file <- paste("hitchip_", level, "_", method, ".txt", sep = "")
   source("generate.qiime.files.R")
   outputdirs[[paste(method, "quantiles", sep = "-")]] <- outputdir
 }
+
+# -------------------------------
+
+# For 006 script:
+#hitchip.data.dir <- "FECAL006" # HITChip profiling output dir
+#for (method in c("ave", "sum")) {
+#  outputdir <- paste("qiime-006", level, method, sep = "-") # QIIME results
+#  # HITChip in QIIME format output file
+#  hitchip.output.file <- paste("hitchip_", level, "_", method, ".txt", sep = "")
+#  source("generate.qiime.files.R")
+#  outputdirs[[paste(method, "006", sep = "-")]] <- outputdir
+#}
+
+
+# --------------------------------
+
 
 #hitchip.data.dir <- "hitchip.files.specificoligos" # HITChip profiling output dir
 #summarization.methods = c("sum", "ave", "rpa", "frpa") 

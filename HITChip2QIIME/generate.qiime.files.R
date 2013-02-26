@@ -1,26 +1,20 @@
-# Specify output files / dirs 
-
-  # HITChip in QIIME format output file
-  hitchip.output.file <- paste("hitchip_", level, "_", method, ".txt", sep = "")
+print(" Specify output files / dirs ")
 
   # Sample mapping file for QIIME
   sample.mapping.file <- "qiime_sample_mapping_file.txt"
 
-# Input files / directories
+print(" Input files / directories")
   # Precalculated HITChip taxonomy file
   hitchip.taxonomy.file <- "hitchip_taxonomic_assignments/HITChip16S_tax_assignments.txt"
   # HITChip probe-taxa phylogenies CSV file 
   phylogeny.file <- "HITChipPhylogeny.csv"
 
-# In addition, specify level and method. These refer to HITChip data.
-# e.g. level <- "species"; method <- "frpa"
-
 # -----------------------------------------------------------
 
-# Load functions
+print("Load functions")
 source("funcs.R")
 
-# Convert HITChip matrix into QIIME format and write into text file
+print("Convert HITChip matrix into QIIME format and write into text file")
 sample.names <- HITChip2QIIME(data.dir = hitchip.data.dir, level = level, method = method, phylogeny.file = phylogeny.file, hitchip.output.file = hitchip.output.file)
 
 # Write sample mapping file for QIIME

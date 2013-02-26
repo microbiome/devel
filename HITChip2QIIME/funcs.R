@@ -70,6 +70,53 @@ HITChip2QIIME <- function (data.dir, level = "species", method = "rpa", phylogen
 
 }
 
+#' @param hitchip.matrix HITChip data matrix taxa x samples
+HITChip2QIIME006 <- function (data.dir, level = "species", method = "sum", phylogeny.file, hitchip.output.file = "hitchip_data.txt") {
+
+  # data.dir = hitchip.data.dir; 
+
+  # level <- "oligo"; method = "sum"; data.dir = "test/"; log10 = TRUE
+  if (level %in% c("L0", "L1", "L2", "species")) {
+      f <- paste(data.dir, "/", level, "_", method, "_006.tab", sep = "")
+  } else if (level == "oligo") {
+      f <- paste(data.dir, "/oligoprofile.tab", sep = "")
+  }
+  
+  #f <- "hitchip.files/speciesSumModified.tab"
+  message(paste("Reading", f))
+
+  # table from HITChip output: sample names by species accessions
+  hit.data <- t(read.table(f, header=T, sep='\t', fill=T, stringsAsFactors=F))
+  colnames(hit.data) <- gsub("_", ".", colnames(hit.data))
+
+  # read mapping between accessions and names and replace species names with accessions
+  phylogeny <- read.csv(phylogeny.file, header=T, fill=T, colClasses='character')
+
+  # Level correspondence in HITChip vs. Phylogeny table
+  if (level == "level 2") {conversion.level <- "Genus"}
+  if (level == "species") {conversion.level <- "Phylotype"}
+
+  # Get sequence accession for each HITChip taxa
+  # Replace HITChip taxa by accessions
+  hit.data <- cbind(rownames(hit.data), hit.data) #phylogeny[match(hit.data[,1], phylogeny[,conversion.level]), "Accession"]
+  rownames(hit.data) <- NULL
+
+  sample.names <- hit.data[1,]
+  sample.names[1] <- ''
+  hit.abund <- t(cbind(hit.data[-1,1], hit.data[-1,-1]))
+
+  # Ensure the sample names contain only alphanumeric characters ('.' also OK), 
+  # as required by QIIME
+  sample.names <- gsub("_", ".", sample.names)
+  sample.names <- gsub("\\.", "", sample.names)
+  rownames(hit.abund) <- sample.names
+
+  write.table(hit.abund, sep='\t', file = hitchip.output.file, col.names = F, quote=F)
+
+  sample.names[-1]
+
+}
+
 
 # Generate sample mapping file for QIIME
 write.QIIME.sample.mapping.file <- function (sample.names, output.file = "grouping_for_qiime.txt", Nbarcodes = 200) {
