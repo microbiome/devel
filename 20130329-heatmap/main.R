@@ -22,21 +22,20 @@ dietdata <- do.call("cbind", dietmatrices)
 dietdata <- cbind(hit[, 1:2], dietdata[, -grep("M", colnames(dietdata))])
 hit <- dietdata
 
-
-# Read qvalues
+print("Read qvalues")
 qv <- read.csv("~/projects/flint11/20130429/qvals\ for\ hm.txt", sep = "\t")
 
-# Filter out non-significants
-keep <- which(apply(qv, 1, min) < 0.05)
+print("Filter out non-significants")
+keep <- which(apply(qv, 1, min) <= 0.05)
 qv <- qv[keep, ]
 hit <- hit[keep, ]
 
+# Add sign to qvalues
+qvalue.signs <- sign(sapply(split(3:ncol(hit), unname(sapply(names(hit[, -c(1,2)]), function (s) {substr(s, 1, 1)}))), function (inds) {rowMeans(hit[, inds])}))
 
 
-# Visualize each bacteria against its abundance in M diet same subject
-#hit[, -c(1, 2)] <- hit[, -c(1,2)] - matrix(rowMeans(hit[, grep("M", colnames(hit))]))
-#hit[, -c(1, 2)] <- hit[, -c(1,2)] - matrix(rowMeans(hit[, grep("M", colnames(hit))]))
 
+library(reshape2)
 data.table <- melt(hit)
 data.table$diet <- factor(sapply(as.character(data.table$variable), function (x) {substr(x, nchar(x), nchar(x))}))
 data.table$subject <- factor(sapply(as.character(data.table$variable), function (x) {substr(x, 1, nchar(x)-1)}))
@@ -53,34 +52,42 @@ theme_set(theme_bw(15))
 # Pick only the correlations with q<0.05 Note: this will leave other cells
 # empty
 
-# Arrange the figure
+print("Arrange the figure")
 p <- ggplot(data.table, aes(x = variable, y = L2, fill = value))
 p <- p + geom_tile()
 #m <- max(abs(c(min(data.table$value), max(data.table$value))))
-lims <- c(-1.25, 1.25)
-p <- p + scale_fill_gradientn("value", breaks = seq(from = min(lims), to = max(lims), by = 0.5), colours = c("darkblue", "blue", "white", "red", "darkred"), limits = lims)
+lims <- c(-1, 1)
+p <- p + scale_fill_gradientn("value", breaks = seq(from = min(lims), to = max(lims), by = 0.5), colours = c("darkblue", "blue", "white", "red", "darkred"), limits = lims, name = "Fold Change (Log10)")
 p <- p + theme(axis.text.x = theme_text(angle = 90, size = 7), axis.text.y = theme_text(size = 7)) + xlab("") + ylab("")
 
-pdf("~/FigA.pdf")
+pdf("~/FigA.pdf", width = 8, height = 8)
 print(p)
 dev.off()
 
+print("Mark the most significant cells with stars")
+qv.bu <- qv
+qvs <- qv[, 3:5]
+qvs[(qv[, 3:5] <= 0.05) & (sign(qvalue.signs) == -1)] <- -1
+qvs[(qv[, 3:5] <= 0.05) & (sign(qvalue.signs) == 1)] <- 1
+qvs[(abs(qv[, 3:5]) > 0.05)] <- 0
 
-# Mark the most significant cells with stars
-qv[, 3:5] <- qv[, 3:5] < 0.05
+qv[, 3:5] <- qvs
+names(qv) <- gsub("N.M.qval", "N", names(qv))
+names(qv) <- gsub("R.M.qval", "R", names(qv))
+names(qv) <- gsub("W.M.qval", "W", names(qv))
 qtable <- melt(qv)
-qtable$L2 <- factor(qtable$L2, levels = rev(as.character(hit$L2)))
+qtable$Significance <- factor(qtable$value, levels = c(-1, 0, 1))
+qtable$L1 <- factor(qtable$L1, levels = rev(as.character(qtable$L1)))
+qtable$L2 <- factor(qtable$L2, levels = rev(as.character(qtable$L2)))
 
-#p <- p + geom_text(data = subset(qtable, qvalue < 0.05), aes(x = X1, y = X2, label = "+"), col = "white", size = 5)
-
-# Arrange the figure
-p2 <- ggplot(qtable, aes(x = variable, y = L2, fill = value))
+print("Significances")
+p2 <- ggplot(qtable, aes(x = variable, y = L2, fill = Significance))
 p2 <- p2 + geom_tile()
-#lims <- c(0,1)
-#p <- p + scale_fill_gradientn("value", breaks = seq(from = min(lims), to = max(lims), by = 0.5), colours = c("darkblue", "blue", "white", "red", "darkred"), limits = lims)
-#p <- p + scale_fill_gradientn("value", breaks = seq(from = min(lims), to = max(lims), by = 0.5), colours = c("darkblue", "blue", "white", "red", "darkred"), limits = lims)
-p2 <- p2 + theme(axis.text.x = theme_text(angle = 90), axis.text.y = theme_text(size = 7)) + xlab("") + ylab("")
+p2 <- p2 + theme(axis.text.x = element_text(angle = 0, vjust = .5), axis.text.y = element_text(size = 7))
+p2 <- p2 + xlab("") + ylab("")
+p2 <- p2 + scale_fill_manual(values = c("-1" = "blue", "0" = "white", "1" = "red"), guide = "none")
 
-pdf("~/FigB.pdf")
+
+pdf("~/FigB.pdf", width = 2.8, height = 8)
 print(p2)
 dev.off()
