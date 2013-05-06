@@ -26,7 +26,7 @@ print("Read qvalues")
 qv <- read.csv("~/projects/flint11/20130429/qvals\ for\ hm.txt", sep = "\t")
 
 print("Filter out non-significants")
-keep <- which(apply(qv, 1, min) <= 0.05)
+keep <- which(apply(qv, 1, min) <= 0.054)
 qv <- qv[keep, ]
 hit <- hit[keep, ]
 
@@ -49,7 +49,7 @@ library(ggplot2)
 # Set theme
 theme_set(theme_bw(15))
 
-# Pick only the correlations with q<0.05 Note: this will leave other cells
+# Pick only the correlations with q<0.054 Note: this will leave other cells
 # empty
 
 print("Arrange the figure")
@@ -67,9 +67,9 @@ dev.off()
 print("Mark the most significant cells with stars")
 qv.bu <- qv
 qvs <- qv[, 3:5]
-qvs[(qv[, 3:5] <= 0.05) & (sign(qvalue.signs) == -1)] <- -1
-qvs[(qv[, 3:5] <= 0.05) & (sign(qvalue.signs) == 1)] <- 1
-qvs[(abs(qv[, 3:5]) > 0.05)] <- 0
+qvs[(qv[, 3:5] <= 0.054) & (sign(qvalue.signs) == -1)] <- -1
+qvs[(qv[, 3:5] <= 0.054) & (sign(qvalue.signs) == 1)] <- 1
+qvs[(abs(qv[, 3:5]) > 0.054)] <- 0
 
 qv[, 3:5] <- qvs
 names(qv) <- gsub("N.M.qval", "N", names(qv))
@@ -77,8 +77,8 @@ names(qv) <- gsub("R.M.qval", "R", names(qv))
 names(qv) <- gsub("W.M.qval", "W", names(qv))
 qtable <- melt(qv)
 qtable$Significance <- factor(qtable$value, levels = c(-1, 0, 1))
-qtable$L1 <- factor(qtable$L1, levels = rev(as.character(qtable$L1)))
-qtable$L2 <- factor(qtable$L2, levels = rev(as.character(qtable$L2)))
+qtable$L1 <- factor(qtable$L1, levels = rev(unique(as.character(qtable$L1))))
+qtable$L2 <- factor(qtable$L2, levels = rev(unique(as.character(qtable$L2))))
 
 print("Significances")
 p2 <- ggplot(qtable, aes(x = variable, y = L2, fill = Significance))
