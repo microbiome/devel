@@ -1,0 +1,117 @@
+---
+title: "Principal Deaths Analysis (PDA)"
+author: "The Team / Leo"
+date: "`r Sys.Date()`"
+output:
+  pdf_document
+---
+
+
+```{r setup, echo=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(devtools)
+library(gridExtra)
+library(phyloseq)
+library(dplyr)
+library(reshape2)
+library(knitr)
+library(plotROC)
+library(pROC)
+library(ggROC)
+library(tidyr)
+library(microbiome)
+library(cowplot)
+library(ggplot2)
+require(bookdown)
+knitr::opts_chunk$set(fig.path = "figure_manuscript/", dev="CairoPNG", cache=FALSE)
+knitr::opts_chunk$set(fig.align = "center")
+# http://derekogle.com/fishR/2015-09-17-Figure-Table-Captions-in-Markdown
+library(captioner)
+tbls <- captioner(prefix="Table")
+figs <- captioner(prefix="Fig.")
+
+subtbls <- captioner(prefix="Supplementary Table")
+subfigs <- captioner(prefix="Supplementary Fig.")
+
+qth <- 0.1
+```
+
+
+The 2nd PCA axis on CLR-transformed abundance data seems to be associated with death rate.
+
+
+```{r pca, echo=FALSE, message=FALSE, warning=FALSE, fig.width=14, fig.height=10}
+library(spdep)
+# Compare to PCoa and rotated PCoA
+#pca$scores <- Rotation(phyla.df[, c("pcoa1", "pcoa2")], .2 * pi)
+#pca$scores <- Rotation(phyla.df[, c("pcoa1", "pcoa2")], 0 * pi)
+#pca$cores
+# phyla.df[, c("pcoa1", "pcoa2")]
+# t(abundances(transform(phfinrisk_genus, trans))[c("Prevotella (Bacteria)", "Bacteroides (Bacteria)"), ])
+
+# Visualize PCA
+p <- plot_landscape(pca$scores[, 1:2]) +
+       labs(x = "PCA1",
+            y = "PCA2",
+	    title = paste("PCA on genus-level data (", trans, "/", distmeth, ")"))
+
+print(p)
+```
+
+
+```{r pcacomp, echo=FALSE, message=FALSE, warning=FALSE, fig.show="hold", out.width="200px", fig.width=6, fig.height=5}
+for (k in 1:2) {
+  plot(density(pca$scores[,k]), main = paste("Component", k, "; 10% quantile indicated"))
+  abline(v = quantile(pca$scores[,k], qth), lty = 2)
+}
+```
+
+
+
+```{r drivers, echo=FALSE, message=FALSE, warning=FALSE, fig.show="hold", out.width="200px", fig.width=8, fig.height=7}
+for (k in 1:2) {
+  s <- sort(pca$loadings[,k])
+  s <- s[abs(s) > quantile(abs(s), 0.99)]
+  par(mar = c(3, 15, 1, 1))
+  barplot(sort(s), main = paste("Drivers on component", k), horiz = T, las = 1)
+}
+```
+
+
+```{r deathbar, echo=FALSE, message=FALSE, warning=FALSE, fig.show="hold", out.width="200px", fig.width=8, fig.height=6}
+library(knitr)
+for (k in 1:2) {
+
+ # Define the lowest 10% quantile on the given PCA axis
+ df <- meta(phfinrisk_genus)
+ df$quantile <- rep("High", nrow(df))
+ df$quantile[pca$scores[,k] < quantile(pca$scores[,k], qth)] <- "Low"
+ df$quantile <- factor(df$quantile, levels = c("Low", "High"))
+
+ pval <- fisher.test(table(df$DEATH, df$quantile))$p.value
+
+ tab <- prop.table(table(Death = df$DEATH, Quantile = df$quantile), 2)
+ kable(tab, digits = 2)
+
+ dfm <- subset(melt(tab), Death == TRUE)
+ p <- ggplot(dfm, aes(x = Quantile, y = value)) +
+        geom_bar(stat = "identity", position = "dodge") +
+	scale_y_continuous(labels = scales::percent) +
+	labs(x = "Low PCA 2",
+	     y = "Deaths (%)",
+	     title = paste("Deaths on PCA", k, "(low vs. high; p=", round(pval, 3), ")"))
+ print(p)
+}
+```
+
+
+ROC/AUC for selected phyla on PCA2.
+
+```{r ROC, echo=FALSE, message=FALSE, warning=FALSE, fig.show="hold", out.width="200px", fig.width=5, fig.height=3}
+library(pROC)
+k <- 2
+for (phyla in selected.phyla[1:4]) {
+  r <- roc(gsub(" \\(Bacteria\\)", "", names(pca$loadings[,k])) %in% tt.m[which(tt.m[, "Phylum"] %in% phyla), "Genus"], pca$loadings[,k])
+  plot(r, main = paste(phyla, "; AUC=", round(r$auc, 2)))
+}
+```
